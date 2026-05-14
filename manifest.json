@@ -1,0 +1,10 @@
+{
+  "name": "BlackMetalBuildables",
+  "description": "Adds black metal variants of vanilla Valheim iron building pieces.",
+  "version_number": "1.0.0",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2333",
+    "ValheimModding-Jotunn-2.29.0"
+  ],
+  "website_url": "https://github.com/HaydenC53/BlackMetalBuildables"
+}
