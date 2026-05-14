@@ -4,26 +4,6 @@ Black Metal Buildables is a small Valheim mod that adds black metal variants of 
 
 The current implementation clones existing Valheim iron build-piece prefabs, changes their gameplay metadata, registers them in the Hammer build menu, and applies a lightweight runtime material tint so they read as black metal without custom meshes, textures, icons, or Unity asset bundles.
 
-## Status
-
-This mod is in early development.
-
-Working foundation:
-
-- BepInEx plugin loads successfully.
-- Jotunn dependency is wired and loading.
-- Custom pieces are registered through Jotunn.
-- Pieces appear in the Hammer menu under the vanilla heavy building category.
-- Pieces use BlackMetal as their build requirement.
-- Placed pieces can be removed and refund materials.
-- Runtime material tinting works on cloned prefabs.
-
-Current version:
-
-```text
-0.1.0
-```
-
 ## Current Pieces
 
 | Piece | New prefab | Source prefab | Cost | Station |
@@ -43,7 +23,7 @@ Category: HeavyBuild
 
 ## Design Goals
 
-Keep the first version boring and functional:
+Keep the first version simple and functional:
 
 - Reuse vanilla Valheim prefabs.
 - Avoid custom Unity asset bundles.
@@ -51,8 +31,6 @@ Keep the first version boring and functional:
 - Avoid custom textures and icons for now.
 - Avoid Harmony unless a later feature genuinely needs it.
 - Prefer simple explicit piece registration over a larger content framework.
-
-The goal is to build confidence in the Valheim modding loop before adding more polish.
 
 ## Requirements
 
@@ -71,34 +49,6 @@ Microsoft.NETFramework.ReferenceAssemblies.net472
 ```
 
 so IDE language services and command-line builds can resolve framework types consistently.
-
-## Local Paths
-
-The project currently references local assemblies from a Valheim/r2modman setup.
-
-Expected BepInEx reference:
-
-```text
-C:\Users\hayden\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\updated\BepInEx\core\BepInEx.dll
-```
-
-Expected Jotunn reference:
-
-```text
-C:\Users\hayden\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\updated\BepInEx\plugins\ValheimModding-Jotunn\Jotunn.dll
-```
-
-Expected Valheim managed assemblies:
-
-```text
-C:\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed
-```
-
-If your local paths differ, update the `<HintPath>` values in:
-
-```text
-BlackMetalBuildables/BlackMetalBuildables.csproj
-```
 
 ## Build
 
@@ -124,69 +74,4 @@ After building, copy:
 BlackMetalBuildables\bin\Debug\net472\BlackMetalBuildables.dll
 ```
 
-into a BepInEx plugins folder, for example:
-
-```text
-C:\Users\hayden\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\updated\BepInEx\plugins\BlackMetalBuildables\
-```
-
-Then launch Valheim with that profile.
-
-Expected log line:
-
-```text
-Black Metal Buildables loaded
-```
-
-## Implementation Notes
-
-Custom pieces are registered after vanilla prefabs are available:
-
-```csharp
-PrefabManager.OnVanillaPrefabsAvailable += RegisterPieces;
-```
-
-Registering directly in plugin `Awake()` failed because Jotunn could not clone the vanilla prefab yet.
-
-Each piece is registered explicitly:
-
-```csharp
-// Black Metal Cage Floor 2x2
-AddPiece(
-    new CustomPiece(
-        "blackmetal_floor_2x2",
-        "iron_floor_2x2",
-        CreateBlackMetalPieceConfig(
-            "Black Metal Cage Floor",
-            "A sturdy cage floor forged from black metal.",
-            2
-        )
-    )
-);
-```
-
-`AddPiece` applies the runtime material tint and then registers the piece with Jotunn.
-
-The tinting approach clones renderer materials before changing color values, so vanilla shared materials are not modified globally.
-
-## Reference Files
-
-Development notes and scratchpad:
-
-```text
-black-metal-buildables-scratchpad.md
-```
-
-Known iron building prefab names:
-
-```text
-iron_buildings_prefab_names.md
-```
-
-## Repository Description
-
-Suggested short repository description:
-
-```text
-A Valheim mod that adds black metal variants of vanilla iron building pieces using BepInEx and Jotunn.
-```
+into a BepInEx plugins folder. Then launch Valheim with that profile.
