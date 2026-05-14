@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\CodexSandboxOffline\\.codex\\.sandbox\\cwd\\e1a24d30322f9f55\\BlackMetalBuildables\\BlackMetalBuildables.csproj": {}
+    "C:\\build\\BlackMetalBuildables\\src\\BlackMetalBuildables.csproj": {}
   },
   "projects": {
-    "C:\\Users\\CodexSandboxOffline\\.codex\\.sandbox\\cwd\\e1a24d30322f9f55\\BlackMetalBuildables\\BlackMetalBuildables.csproj": {
+    "C:\\build\\BlackMetalBuildables\\src\\BlackMetalBuildables.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\CodexSandboxOffline\\.codex\\.sandbox\\cwd\\e1a24d30322f9f55\\BlackMetalBuildables\\BlackMetalBuildables.csproj",
+        "projectUniqueName": "C:\\build\\BlackMetalBuildables\\src\\BlackMetalBuildables.csproj",
         "projectName": "BlackMetalBuildables",
-        "projectPath": "C:\\Users\\CodexSandboxOffline\\.codex\\.sandbox\\cwd\\e1a24d30322f9f55\\BlackMetalBuildables\\BlackMetalBuildables.csproj",
+        "projectPath": "C:\\build\\BlackMetalBuildables\\src\\BlackMetalBuildables.csproj",
         "packagesPath": "C:\\Users\\CodexSandboxOffline\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\CodexSandboxOffline\\.codex\\.sandbox\\cwd\\e1a24d30322f9f55\\BlackMetalBuildables\\obj\\",
+        "outputPath": "C:\\build\\BlackMetalBuildables\\src\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\hayden\\AppData\\Roaming\\NuGet\\NuGet.Config"
