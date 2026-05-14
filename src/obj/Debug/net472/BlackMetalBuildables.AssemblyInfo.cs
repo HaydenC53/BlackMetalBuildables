@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlackMetalBuildables")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b7ddb34a51cae96337f9d9ba5d9dd00354b42262")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f737fbdbf47d558a3bca54c44548dcb5bb4168a6")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlackMetalBuildables")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlackMetalBuildables")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

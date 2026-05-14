@@ -416,7 +416,7 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\CodexSandboxOffline\\.nuget\\packages\\": {}
+    "C:\\Users\\hayden\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
@@ -424,7 +424,7 @@
       "projectUniqueName": "C:\\build\\BlackMetalBuildables\\src\\BlackMetalBuildables.csproj",
       "projectName": "BlackMetalBuildables",
       "projectPath": "C:\\build\\BlackMetalBuildables\\src\\BlackMetalBuildables.csproj",
-      "packagesPath": "C:\\Users\\CodexSandboxOffline\\.nuget\\packages\\",
+      "packagesPath": "C:\\Users\\hayden\\.nuget\\packages\\",
       "outputPath": "C:\\build\\BlackMetalBuildables\\src\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [

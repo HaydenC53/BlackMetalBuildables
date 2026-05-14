@@ -7,3 +7,7 @@
 - Added Forge build requirement and BlackMetal material costs.
 - Added runtime material tinting for a black metal visual treatment without custom assets.
 - Added Thunderstore package metadata.
+
+## 1.0.1
+
+- Simplified the README

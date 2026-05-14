@@ -12,7 +12,7 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "haydenc52.BlackMetalBuildables";
     private const string PluginName = "Black Metal Buildables";
-    private const string PluginVersion = "1.0.0";
+    private const string PluginVersion = "1.0.1";
 
     private void Awake()
     {
