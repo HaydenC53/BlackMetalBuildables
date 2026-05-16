@@ -20,10 +20,25 @@ public class BlackMetalCore
     private const string WoodRoleMarker = "Wood_";
     private const string MetalRoleMarker = "Metal_";
 
+    private static readonly string[] EffectsSourcePrefabs =
+    {
+        "woodiron_pole",
+        "woodiron_beam",
+        "wood_pole_log"
+    };
+
     private const string MetalSourcePrefab = "iron_wall_1x1";
 
     private const string BlackCorePole2mPrefab = "bmb_black_core_pole_2m";
+    private const string BlackCorePole4mPrefab = "bmb_black_core_pole_4m";
+    private const string BlackCoreBeam2mPrefab = "bmb_black_core_beam_2m";
+    private const string BlackCoreBeam4mPrefab = "bmb_black_core_beam_4m";
+
     private const string BlackCorePole2mVisualAsset = "assets/blackcore/prefabs/blackmetalcorepole2m.prefab";
+    private const string BlackCorePole4mVisualAsset = "assets/blackcore/prefabs/blackmetalcorepole4m.prefab";
+    private const string BlackCoreBeam2mVisualAsset = "assets/blackcore/prefabs/blackmetalcorebeam2m.prefab";
+    private const string BlackCoreBeam4mVisualAsset = "assets/blackcore/prefabs/blackmetalcorebeam4m.prefab";
+
     private const string DarkCoreWoodMaterialAsset = "assets/blackcore/materials/bmb_darkcorewood.mat";
 
     private static AssetBundle assetBundle;
@@ -46,64 +61,44 @@ public class BlackMetalCore
         );
 
         // Black Core Pole 4m
-        // RegisterPiece(
-        //     new BlackCorePieceDefinition(
-        //         "bmb_black_core_pole_4m",
-        //         "wood_pole_log_4",
-        //         "Black Core Pole 4m",
-        //         "Core wood reinforced with black metal bands.",
-        //         coreWoodCost: 2,
-        //         blackMetalCost: 2
-        //     )
-        // );
+        RegisterPiece(
+            new BlackCorePieceDefinition(
+                BlackCorePole4mPrefab,
+                BlackCorePole4mVisualAsset,
+                "Black Core Pole 4m",
+                "Core wood reinforced with black metal bands.",
+                coreWoodCost: 2,
+                blackMetalCost: 2,
+                BlackCorePieceShape.Pole4m
+            )
+        );
 
         // Black Core Beam 2m
-        // RegisterPiece(
-        //     new BlackCorePieceDefinition(
-        //         "bmb_black_core_beam_2m",
-        //         "wood_wall_log",
-        //         "Black Core Beam 2m",
-        //         "Core wood reinforced with black metal bands.",
-        //         coreWoodCost: 1,
-        //         blackMetalCost: 1
-        //     )
-        // );
+        RegisterPiece(
+            new BlackCorePieceDefinition(
+                BlackCoreBeam2mPrefab,
+                BlackCoreBeam2mVisualAsset,
+                "Black Core Beam 2m",
+                "Core wood reinforced with black metal bands.",
+                coreWoodCost: 1,
+                blackMetalCost: 1,
+                BlackCorePieceShape.Beam2m
+            )
+        );
 
         // Black Core Beam 4m
-        // RegisterPiece(
-        //     new BlackCorePieceDefinition(
-        //         "bmb_black_core_beam_4m",
-        //         "wood_wall_log_4x0.5",
-        //         "Black Core Beam 4m",
-        //         "Core wood reinforced with black metal bands.",
-        //         coreWoodCost: 2,
-        //         blackMetalCost: 2
-        //     )
-        // );
+        RegisterPiece(
+            new BlackCorePieceDefinition(
+                BlackCoreBeam4mPrefab,
+                BlackCoreBeam4mVisualAsset,
+                "Black Core Beam 4m",
+                "Core wood reinforced with black metal bands.",
+                coreWoodCost: 2,
+                blackMetalCost: 2,
+                BlackCorePieceShape.Beam4m
+            )
+        );
 
-        // Black Core Beam 26
-        // RegisterPiece(
-        //     new BlackCorePieceDefinition(
-        //         "bmb_black_core_beam_26",
-        //         "wood_log_26",
-        //         "Black Core Beam 26",
-        //         "Core wood reinforced with black metal bands.",
-        //         coreWoodCost: 2,
-        //         blackMetalCost: 1
-        //     )
-        // );
-
-        // Black Core Beam 45
-        // RegisterPiece(
-        //     new BlackCorePieceDefinition(
-        //         "bmb_black_core_beam_45",
-        //         "wood_log_45",
-        //         "Black Core Beam 45",
-        //         "Core wood reinforced with black metal bands.",
-        //         coreWoodCost: 2,
-        //         blackMetalCost: 1
-        //     )
-        // );
     }
 
     private static void RegisterPiece(BlackCorePieceDefinition definition)
@@ -124,6 +119,7 @@ public class BlackMetalCore
 
             ConfigureStandalonePiece(customPiece.PiecePrefab, dimensions);
             TuneSupport(customPiece.PiecePrefab);
+            ApplyBuildEffects(customPiece.PiecePrefab);
             LogSnapPointsIfDebug(customPiece.PiecePrefab, "before visual replacement");
             ApplyBundledVisual(customPiece.PiecePrefab, definition.VisualAssetName);
             LogSnapPointsIfDebug(customPiece.PiecePrefab, "after visual replacement");
@@ -142,6 +138,60 @@ public class BlackMetalCore
         {
             BMBLogger.LogError($"Failed to register Black Core piece '{definition.PrefabName}': {ex}");
         }
+    }
+
+    private static void ApplyBuildEffects(GameObject prefab)
+    {
+        var sourcePrefab = GetEffectsSourcePrefab();
+        if (sourcePrefab == null)
+        {
+            BMBLogger.LogWarning("Could not find any source prefab for Black Core effects.");
+            return;
+        }
+
+        CopyPlaceEffect(sourcePrefab, prefab);
+        CopyWearNTearEffects(sourcePrefab, prefab);
+    }
+
+    private static GameObject GetEffectsSourcePrefab()
+    {
+        foreach (var sourcePrefabName in EffectsSourcePrefabs)
+        {
+            var sourcePrefab = PrefabManager.Instance.GetPrefab(sourcePrefabName);
+            if (sourcePrefab != null)
+            {
+                return sourcePrefab;
+            }
+        }
+
+        return null;
+    }
+
+    private static void CopyPlaceEffect(GameObject sourcePrefab, GameObject targetPrefab)
+    {
+        var sourcePiece = sourcePrefab.GetComponent<Piece>();
+        var targetPiece = targetPrefab.GetComponent<Piece>();
+        if (sourcePiece == null || targetPiece == null)
+        {
+            BMBLogger.LogWarning($"Could not copy Black Core place effect from '{sourcePrefab.name}' to '{targetPrefab.name}'. Missing Piece component.");
+            return;
+        }
+
+        targetPiece.m_placeEffect = sourcePiece.m_placeEffect;
+    }
+
+    private static void CopyWearNTearEffects(GameObject sourcePrefab, GameObject targetPrefab)
+    {
+        var sourceWearNTear = sourcePrefab.GetComponent<WearNTear>();
+        var targetWearNTear = targetPrefab.GetComponent<WearNTear>();
+        if (sourceWearNTear == null || targetWearNTear == null)
+        {
+            BMBLogger.LogWarning($"Could not copy Black Core hit/destroy effects from '{sourcePrefab.name}' to '{targetPrefab.name}'. Missing WearNTear component.");
+            return;
+        }
+
+        targetWearNTear.m_hitEffect = sourceWearNTear.m_hitEffect;
+        targetWearNTear.m_destroyedEffect = sourceWearNTear.m_destroyedEffect;
     }
 
     private static void ApplyIcon(CustomPiece customPiece)
@@ -229,7 +279,7 @@ public class BlackMetalCore
         var collider = prefab.GetComponent<CapsuleCollider>() ?? prefab.AddComponent<CapsuleCollider>();
         collider.radius = dimensions.ColliderRadius;
         collider.height = dimensions.ColliderHeight;
-        collider.direction = 1;
+        collider.direction = dimensions.ColliderDirection;
         collider.center = dimensions.ColliderCenter;
         collider.enabled = true;
     }
@@ -244,7 +294,41 @@ public class BlackMetalCore
                     bottomSnap: new Vector3(0f, -1f, 0f),
                     colliderCenter: Vector3.zero,
                     colliderRadius: 0.3f,
-                    colliderHeight: 2f
+                    colliderHeight: 2f,
+                    colliderDirection: 1
+                );
+                return true;
+
+            case BlackCorePieceShape.Pole4m:
+                dimensions = new BlackCorePieceDimensions(
+                    topSnap: new Vector3(0f, 2f, 0f),
+                    bottomSnap: new Vector3(0f, -2f, 0f),
+                    colliderCenter: Vector3.zero,
+                    colliderRadius: 0.3f,
+                    colliderHeight: 4f,
+                    colliderDirection: 1
+                );
+                return true;
+
+            case BlackCorePieceShape.Beam2m:
+                dimensions = new BlackCorePieceDimensions(
+                    topSnap: new Vector3(1f, 0f, 0f),
+                    bottomSnap: new Vector3(-1f, 0f, 0f),
+                    colliderCenter: Vector3.zero,
+                    colliderRadius: 0.3f,
+                    colliderHeight: 2f,
+                    colliderDirection: 0
+                );
+                return true;
+
+            case BlackCorePieceShape.Beam4m:
+                dimensions = new BlackCorePieceDimensions(
+                    topSnap: new Vector3(2f, 0f, 0f),
+                    bottomSnap: new Vector3(-2f, 0f, 0f),
+                    colliderCenter: Vector3.zero,
+                    colliderRadius: 0.3f,
+                    colliderHeight: 4f,
+                    colliderDirection: 0
                 );
                 return true;
 
@@ -647,9 +731,7 @@ public class BlackMetalCore
         Pole2m,
         Pole4m,
         Beam2m,
-        Beam4m,
-        Beam26,
-        Beam45
+        Beam4m
     }
 
     private readonly struct BlackCorePieceDimensions
@@ -659,7 +741,8 @@ public class BlackMetalCore
             Vector3 bottomSnap,
             Vector3 colliderCenter,
             float colliderRadius,
-            float colliderHeight
+            float colliderHeight,
+            int colliderDirection
         )
         {
             TopSnap = topSnap;
@@ -667,6 +750,7 @@ public class BlackMetalCore
             ColliderCenter = colliderCenter;
             ColliderRadius = colliderRadius;
             ColliderHeight = colliderHeight;
+            ColliderDirection = colliderDirection;
         }
 
         public Vector3 TopSnap { get; }
@@ -678,6 +762,8 @@ public class BlackMetalCore
         public float ColliderRadius { get; }
 
         public float ColliderHeight { get; }
+
+        public int ColliderDirection { get; }
     }
 
     private readonly struct BlackCorePieceDefinition
