@@ -1,16 +1,19 @@
 param(
     [Parameter(Mandatory = $true)]
-    [ValidatePattern('^\d+\.\d+\.\d+$')]
+    [ValidatePattern('^v?\d+\.\d+\.\d+$')]
     [string] $Version
 )
 
 $ErrorActionPreference = 'Stop'
 
+$packageVersion = $Version.TrimStart('v')
+$versionTag = "v$packageVersion"
+
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectPath = Join-Path $repoRoot 'src\BlackMetalBuildables.csproj'
 $distPath = Join-Path $repoRoot 'dist'
-$stagePath = Join-Path $distPath "BlackMetalBuildables-$Version"
-$zipPath = Join-Path $distPath "BlackMetalBuildables-$Version.zip"
+$stagePath = Join-Path $distPath "BlackMetalBuildables-$packageVersion"
+$zipPath = Join-Path $distPath "BlackMetalBuildables-$packageVersion.zip"
 $dllPath = Join-Path $repoRoot 'src\bin\Debug\net472\BlackMetalBuildables.dll'
 
 function Assert-FileExists {
@@ -43,43 +46,58 @@ function Assert-IconIsValid {
     }
 }
 
-function Assert-ManifestVersion {
+function Set-ManifestVersion {
     param(
         [Parameter(Mandatory = $true)]
         [string] $Path,
 
         [Parameter(Mandatory = $true)]
-        [string] $ExpectedVersion
-    )
-
-    $manifest = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
-
-    if ($manifest.version_number -ne $ExpectedVersion) {
-        throw "manifest.json version_number is '$($manifest.version_number)', expected '$ExpectedVersion'."
-    }
-}
-
-function Assert-PluginVersion {
-    param(
-        [Parameter(Mandatory = $true)]
-        [string] $Path,
-
-        [Parameter(Mandatory = $true)]
-        [string] $ExpectedVersion
+        [string] $Version
     )
 
     $source = Get-Content -LiteralPath $Path -Raw
-    $match = [regex]::Match($source, 'PluginVersion\s*=\s*"(?<version>\d+\.\d+\.\d+)"')
+    $pattern = '"version_number"\s*:\s*"(?<version>\d+\.\d+\.\d+)"'
+    $match = [regex]::Match($source, $pattern)
+
+    if (-not $match.Success) {
+        throw "Could not find version_number in $Path."
+    }
+
+    $updatedSource = [regex]::Replace(
+        $source,
+        $pattern,
+        "`"version_number`": `"$Version`"",
+        1
+    )
+
+    Set-Content -LiteralPath $Path -Value $updatedSource -Encoding UTF8 -NoNewline
+}
+
+function Set-PluginVersion {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Path,
+
+        [Parameter(Mandatory = $true)]
+        [string] $Version
+    )
+
+    $source = Get-Content -LiteralPath $Path -Raw
+    $pattern = 'PluginVersion\s*=\s*"(?<version>\d+\.\d+\.\d+)"'
+    $match = [regex]::Match($source, $pattern)
 
     if (-not $match.Success) {
         throw "Could not find PluginVersion in $Path."
     }
 
-    $actualVersion = $match.Groups['version'].Value
+    $updatedSource = [regex]::Replace(
+        $source,
+        $pattern,
+        "PluginVersion = `"$Version`"",
+        1
+    )
 
-    if ($actualVersion -ne $ExpectedVersion) {
-        throw "PluginVersion is '$actualVersion', expected '$ExpectedVersion'."
-    }
+    Set-Content -LiteralPath $Path -Value $updatedSource -Encoding UTF8 -NoNewline
 }
 
 Assert-FileExists -Path $projectPath
@@ -88,11 +106,11 @@ Assert-FileExists -Path (Join-Path $repoRoot 'README.md')
 Assert-FileExists -Path (Join-Path $repoRoot 'CHANGELOG.md')
 Assert-FileExists -Path (Join-Path $repoRoot 'icon.png')
 
-Assert-ManifestVersion -Path (Join-Path $repoRoot 'manifest.json') -ExpectedVersion $Version
-Assert-PluginVersion -Path (Join-Path $repoRoot 'src\Plugin.cs') -ExpectedVersion $Version
+Set-ManifestVersion -Path (Join-Path $repoRoot 'manifest.json') -Version $packageVersion
+Set-PluginVersion -Path (Join-Path $repoRoot 'src\Plugin.cs') -Version $packageVersion
 Assert-IconIsValid -Path (Join-Path $repoRoot 'icon.png')
 
-Write-Host "Building BlackMetalBuildables $Version..."
+Write-Host "Building BlackMetalBuildables $versionTag..."
 dotnet build $projectPath
 
 Assert-FileExists -Path $dllPath

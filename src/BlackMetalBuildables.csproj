@@ -12,12 +12,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\unity\BlackMetalBuildablesUnity\AssetBundles\blackcore" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="BepInEx">
       <HintPath>C:\Users\hayden\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\updated\BepInEx\core\BepInEx.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Jotunn">
       <HintPath>C:\Users\hayden\AppData\Roaming\r2modmanPlus-local\Valheim\profiles\updated\BepInEx\plugins\ValheimModding-Jotunn\Jotunn.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="assembly_valheim">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\assembly_valheim.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
@@ -30,6 +38,10 @@
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Valheim\valheim_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

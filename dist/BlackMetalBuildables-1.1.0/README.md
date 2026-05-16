@@ -28,6 +28,10 @@ How I used AI:
 2. Used to generate documentation
 3. Used to verify Jotunn, BepInEx, and Unity API
 4. Generated icon
+5. Assisted in using 3D modeling software
+  a. Knew almost nothing about 3D modeling, so used it to get answers on how to accomplish tasks in the software (blender, unity)
+  b. With it, I used open source materials and primitive items in blender & unity to create the Black Metal Corewood Reinforced assets from scratch
+    i. To be ultra clear: I performed the work, with the AI teaching me how to use the software effectively
 
 ## Build
 

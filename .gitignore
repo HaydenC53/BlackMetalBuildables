@@ -1,0 +1,6 @@
+tmp/
+unity/
+src/bin
+src/obj
+
+# Keeping dist/ to preserve the DLL and package in multiple places
