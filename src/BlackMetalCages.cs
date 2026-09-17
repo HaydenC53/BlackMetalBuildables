@@ -1,3 +1,8 @@
+/*
+ * Black Metal Buildables
+ * Author: HaydenC53
+ */
+
 using BepInEx;
 using Jotunn.Configs;
 using Jotunn.Entities;
