@@ -20,14 +20,9 @@ public class BlackMetalCore
     private const string WoodRoleMarker = "Wood_";
     private const string MetalRoleMarker = "Metal_";
 
-    private static readonly string[] EffectsSourcePrefabs =
-    {
-        "woodiron_pole",
-        "woodiron_beam",
-        "wood_pole_log"
-    };
-
     private const string MetalSourcePrefab = "iron_wall_1x1";
+    private const string VanillaPoleSourcePrefab = "woodiron_pole";
+    private const string VanillaBeamSourcePrefab = "woodiron_beam";
 
     private const string BlackCorePole2mPrefab = "bmb_black_core_pole_2m";
     private const string BlackCorePole4mPrefab = "bmb_black_core_pole_4m";
@@ -51,6 +46,7 @@ public class BlackMetalCore
         RegisterPiece(
             new BlackCorePieceDefinition(
                 BlackCorePole2mPrefab,
+                VanillaPoleSourcePrefab,
                 BlackCorePole2mVisualAsset,
                 "Black Core Pole 2m",
                 "Core wood reinforced with black metal bands.",
@@ -64,6 +60,7 @@ public class BlackMetalCore
         RegisterPiece(
             new BlackCorePieceDefinition(
                 BlackCorePole4mPrefab,
+                VanillaPoleSourcePrefab,
                 BlackCorePole4mVisualAsset,
                 "Black Core Pole 4m",
                 "Core wood reinforced with black metal bands.",
@@ -77,6 +74,7 @@ public class BlackMetalCore
         RegisterPiece(
             new BlackCorePieceDefinition(
                 BlackCoreBeam2mPrefab,
+                VanillaBeamSourcePrefab,
                 BlackCoreBeam2mVisualAsset,
                 "Black Core Beam 2m",
                 "Core wood reinforced with black metal bands.",
@@ -90,6 +88,7 @@ public class BlackMetalCore
         RegisterPiece(
             new BlackCorePieceDefinition(
                 BlackCoreBeam4mPrefab,
+                VanillaBeamSourcePrefab,
                 BlackCoreBeam4mVisualAsset,
                 "Black Core Beam 4m",
                 "Core wood reinforced with black metal bands.",
@@ -113,13 +112,13 @@ public class BlackMetalCore
         {
             var customPiece = new CustomPiece(
                 definition.PrefabName,
-                addZNetView: true,
+                definition.SourcePrefabName,
                 CreateBlackCorePieceConfig(definition)
             );
 
+            ValidateClonedPiece(customPiece.PiecePrefab, definition);
             ConfigureStandalonePiece(customPiece.PiecePrefab, dimensions);
             TuneSupport(customPiece.PiecePrefab);
-            ApplyBuildEffects(customPiece.PiecePrefab);
             LogSnapPointsIfDebug(customPiece.PiecePrefab, "before visual replacement");
             ApplyBundledVisual(customPiece.PiecePrefab, definition.VisualAssetName);
             LogSnapPointsIfDebug(customPiece.PiecePrefab, "after visual replacement");
@@ -140,58 +139,35 @@ public class BlackMetalCore
         }
     }
 
-    private static void ApplyBuildEffects(GameObject prefab)
+    private static void ValidateClonedPiece(GameObject prefab, BlackCorePieceDefinition definition)
     {
-        var sourcePrefab = GetEffectsSourcePrefab();
-        if (sourcePrefab == null)
+        if (prefab == null)
         {
-            BMBLogger.LogWarning("Could not find any source prefab for Black Core effects.");
-            return;
+            throw new System.InvalidOperationException(
+                $"Could not clone vanilla prefab '{definition.SourcePrefabName}' for '{definition.PrefabName}'."
+            );
         }
 
-        CopyPlaceEffect(sourcePrefab, prefab);
-        CopyWearNTearEffects(sourcePrefab, prefab);
-    }
-
-    private static GameObject GetEffectsSourcePrefab()
-    {
-        foreach (var sourcePrefabName in EffectsSourcePrefabs)
+        if (prefab.GetComponent<Piece>() == null)
         {
-            var sourcePrefab = PrefabManager.Instance.GetPrefab(sourcePrefabName);
-            if (sourcePrefab != null)
-            {
-                return sourcePrefab;
-            }
+            throw new System.InvalidOperationException(
+                $"Cloned vanilla prefab '{definition.SourcePrefabName}' has no Piece component."
+            );
         }
 
-        return null;
-    }
-
-    private static void CopyPlaceEffect(GameObject sourcePrefab, GameObject targetPrefab)
-    {
-        var sourcePiece = sourcePrefab.GetComponent<Piece>();
-        var targetPiece = targetPrefab.GetComponent<Piece>();
-        if (sourcePiece == null || targetPiece == null)
+        if (prefab.GetComponent<ZNetView>() == null)
         {
-            BMBLogger.LogWarning($"Could not copy Black Core place effect from '{sourcePrefab.name}' to '{targetPrefab.name}'. Missing Piece component.");
-            return;
+            throw new System.InvalidOperationException(
+                $"Cloned vanilla prefab '{definition.SourcePrefabName}' has no ZNetView component."
+            );
         }
 
-        targetPiece.m_placeEffect = sourcePiece.m_placeEffect;
-    }
-
-    private static void CopyWearNTearEffects(GameObject sourcePrefab, GameObject targetPrefab)
-    {
-        var sourceWearNTear = sourcePrefab.GetComponent<WearNTear>();
-        var targetWearNTear = targetPrefab.GetComponent<WearNTear>();
-        if (sourceWearNTear == null || targetWearNTear == null)
+        if (prefab.GetComponent<WearNTear>() == null)
         {
-            BMBLogger.LogWarning($"Could not copy Black Core hit/destroy effects from '{sourcePrefab.name}' to '{targetPrefab.name}'. Missing WearNTear component.");
-            return;
+            throw new System.InvalidOperationException(
+                $"Cloned vanilla prefab '{definition.SourcePrefabName}' has no WearNTear component."
+            );
         }
-
-        targetWearNTear.m_hitEffect = sourceWearNTear.m_hitEffect;
-        targetWearNTear.m_destroyedEffect = sourceWearNTear.m_destroyedEffect;
     }
 
     private static void ApplyIcon(CustomPiece customPiece)
@@ -224,10 +200,10 @@ public class BlackMetalCore
 
     private static void TuneSupport(GameObject prefab)
     {
-        var wearNTear = prefab.GetComponent<WearNTear>() ?? prefab.AddComponent<WearNTear>();
+        var wearNTear = prefab.GetComponent<WearNTear>();
         if (wearNTear == null)
         {
-            BMBLogger.LogWarning($"Black Core prefab '{prefab.name}' has no WearNTear component. Support tuning was skipped.");
+            BMBLogger.LogError($"Black Core prefab '{prefab.name}' lost its cloned WearNTear component. Support tuning was skipped.");
             return;
         }
 
@@ -241,10 +217,48 @@ public class BlackMetalCore
 
     private static void ConfigureStandalonePiece(GameObject prefab, BlackCorePieceDimensions dimensions)
     {
+        ConfigureNetworkView(prefab);
+        ClearInheritedSnapPointTags(prefab.transform);
         AddSnapPoint(prefab.transform, "$hud_snappoint_top", dimensions.TopSnap);
         AddSnapPoint(prefab.transform, "$hud_snappoint_bottom", dimensions.BottomSnap);
         EnsureStandaloneCollider(prefab, dimensions);
-        DisablePlaceholderRenderers(prefab);
+    }
+
+    private static void ConfigureNetworkView(GameObject prefab)
+    {
+        var networkView = prefab.GetComponent<ZNetView>();
+        if (networkView == null)
+        {
+            BMBLogger.LogError($"Black Core prefab '{prefab.name}' has no cloned ZNetView component.");
+            return;
+        }
+
+        networkView.m_persistent = true;
+        networkView.m_type = ZDO.ObjectType.Solid;
+    }
+
+    private static void ClearInheritedSnapPointTags(Transform parent)
+    {
+        foreach (var transform in parent.GetComponentsInChildren<Transform>(true))
+        {
+            if (transform == parent)
+            {
+                continue;
+            }
+
+            try
+            {
+                if (transform.CompareTag(SnapPointTag))
+                {
+                    transform.gameObject.tag = "Untagged";
+                }
+            }
+            catch (UnityException ex)
+            {
+                BMBLogger.LogWarning($"Could not inspect inherited Black Core snap point tags: {ex.Message}");
+                return;
+            }
+        }
     }
 
     private static void AddSnapPoint(Transform parent, string name, Vector3 localPosition)
@@ -271,12 +285,12 @@ public class BlackMetalCore
 
     private static void EnsureStandaloneCollider(GameObject prefab, BlackCorePieceDimensions dimensions)
     {
-        foreach (var existingCollider in prefab.GetComponents<Collider>())
+        foreach (var inheritedCollider in prefab.GetComponentsInChildren<Collider>(true))
         {
-            existingCollider.enabled = false;
+            UnityEngine.Object.DestroyImmediate(inheritedCollider);
         }
 
-        var collider = prefab.GetComponent<CapsuleCollider>() ?? prefab.AddComponent<CapsuleCollider>();
+        var collider = prefab.AddComponent<CapsuleCollider>();
         collider.radius = dimensions.ColliderRadius;
         collider.height = dimensions.ColliderHeight;
         collider.direction = dimensions.ColliderDirection;
@@ -411,18 +425,18 @@ public class BlackMetalCore
         visual.transform.localScale = Vector3.one;
 
         LogVisualHierarchyIfDebug(visual);
-        DisableVisualColliders(visual);
+        RemoveVisualColliders(visual);
 
         ApplyBundledVisualMaterials(visual, bundle);
 
         BMBLogger.LogInfo($"Applied bundled Black Core visual '{assetName}' to '{prefab.name}'.");
     }
 
-    private static void DisableVisualColliders(GameObject visual)
+    private static void RemoveVisualColliders(GameObject visual)
     {
         foreach (var collider in visual.GetComponentsInChildren<Collider>(true))
         {
-            collider.enabled = false;
+            UnityEngine.Object.DestroyImmediate(collider);
         }
     }
 
@@ -770,6 +784,7 @@ public class BlackMetalCore
     {
         public BlackCorePieceDefinition(
             string prefabName,
+            string sourcePrefabName,
             string visualAssetName,
             string name,
             string description,
@@ -779,6 +794,7 @@ public class BlackMetalCore
         )
         {
             PrefabName = prefabName;
+            SourcePrefabName = sourcePrefabName;
             VisualAssetName = visualAssetName;
             Name = name;
             Description = description;
@@ -788,6 +804,8 @@ public class BlackMetalCore
         }
 
         public string PrefabName { get; }
+
+        public string SourcePrefabName { get; }
 
         public string VisualAssetName { get; }
 
