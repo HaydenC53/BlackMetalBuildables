@@ -1,3 +1,8 @@
+/*
+ * Black Metal Buildables
+ * Author: HaydenC53
+ */
+
 using System.Collections.Generic;
 using System.Reflection;
 using BMBLogger = Jotunn.Logger;

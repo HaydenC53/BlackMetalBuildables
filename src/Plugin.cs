@@ -1,4 +1,9 @@
-﻿using BepInEx;
+﻿/*
+ * Black Metal Buildables
+ * Author: HaydenC53
+ */
+
+using BepInEx;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -12,7 +17,7 @@ public class Plugin : BaseUnityPlugin
 {
     private const string PluginGuid = "haydenc52.BlackMetalBuildables";
     private const string PluginName = "Black Metal Buildables";
-    private const string PluginVersion = "1.1.0";
+    private const string PluginVersion = "1.2.0";
 
     private void Awake()
     {
